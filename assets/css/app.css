@@ -1,0 +1,84 @@
+:root {
+  --dsa-accent: #0dcaf0;
+}
+
+body {
+  background: #f6f8fb;
+}
+
+/* Level badges */
+.level-beginner    { background: #198754 !important; }
+.level-intermediate{ background: #fd7e14 !important; }
+.level-advanced    { background: #dc3545 !important; }
+
+.difficulty-easy   { color: #198754; }
+.difficulty-medium { color: #fd7e14; }
+.difficulty-hard   { color: #dc3545; }
+
+/* Curriculum sidebar */
+.curriculum-sidebar {
+  position: sticky;
+  top: 80px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+.curriculum-sidebar .accordion-button {
+  font-weight: 600;
+}
+.curriculum-sidebar .list-group-item.active a { color: #fff !important; }
+
+/* Lesson content */
+.lesson-content {
+  font-size: 1.02rem;
+  line-height: 1.7;
+}
+.lesson-content h2,
+.lesson-content h3 { margin-top: 1.5rem; font-weight: 600; }
+.lesson-content pre {
+  border-radius: .5rem;
+  font-size: .9rem;
+}
+.lesson-content table {
+  width: 100%;
+  margin: 1rem 0;
+  border-collapse: collapse;
+}
+.lesson-content table th,
+.lesson-content table td {
+  border: 1px solid #dee2e6;
+  padding: .5rem .75rem;
+}
+.lesson-content blockquote {
+  border-left: 4px solid var(--dsa-accent);
+  padding-left: 1rem;
+  color: #555;
+  background: #eef9fd;
+  padding: .75rem 1rem;
+  border-radius: .25rem;
+}
+.lesson-content :not(pre) > code {
+  background: #eef1f5;
+  padding: .1rem .35rem;
+  border-radius: .25rem;
+  color: #d63384;
+}
+
+/* Code language tabs: keep pre formatting */
+.code-tab-pane pre { margin: 0; }
+
+/* Roadmap cards */
+.chapter-card { transition: transform .12s ease, box-shadow .12s ease; }
+.chapter-card:hover { transform: translateY(-3px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.1); }
+
+/* Reveal solution */
+.solution-hidden { display: none; }
+
+/* Streak flame */
+.streak-flame { color: #fd7e14; }
+
+/* Hero */
+.hero {
+  background: linear-gradient(135deg, #0d1b2a 0%, #1b3a5b 100%);
+  color: #fff;
+  border-radius: 1rem;
+}
