@@ -43,6 +43,12 @@ try {
         step($line);
     }
 
+    // 4. Import the Coder Army practice sheet (runs after chapters exist).
+    require __DIR__ . '/database/seed/import_sheet.php';
+    foreach (import_sheet() as $line) {
+        step($line);
+    }
+
     step('Setup complete.');
 } catch (Throwable $ex) {
     step('Error: ' . $ex->getMessage(), false);
