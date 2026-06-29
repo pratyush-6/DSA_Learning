@@ -11,10 +11,15 @@
       headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
       body: JSON.stringify(data),
     });
-    return res.json();
+    let json = null;
+    try { json = await res.json(); } catch (e) { json = null; }
+    if (!res.ok || !json) {
+      return { ok: false, error: (json && json.error) || ('http_' + res.status) };
+    }
+    return json;
   }
 
-  // --- Mark topic complete -------------------------------------------------
+  // --- Mark topic (module) complete ---------------------------------------
   const completeBtn = document.getElementById('mark-complete-btn');
   if (completeBtn) {
     completeBtn.addEventListener('click', async () => {
@@ -25,9 +30,40 @@
         const r = await postJson(api('progress.php'), { topic_id: topicId, completed: makeDone });
         if (r.ok) {
           setCompleteState(makeDone, r.chapter_percent);
+        } else {
+          alert('Could not save completion: ' + r.error + '. Please refresh and try again.');
         }
+      } catch (e) {
+        alert('Network error while saving completion. Please try again.');
       } finally {
         completeBtn.disabled = false;
+      }
+    });
+  }
+
+  // --- Mark practice problem (question) solved ----------------------------
+  const solveBtn = document.getElementById('solve-btn');
+  if (solveBtn) {
+    solveBtn.addEventListener('click', async () => {
+      const problemId = parseInt(solveBtn.dataset.problemId, 10);
+      const makeSolved = solveBtn.dataset.solved !== '1';
+      solveBtn.disabled = true;
+      try {
+        const r = await postJson(api('solve.php'), { problem_id: problemId, solved: makeSolved });
+        if (r.ok) {
+          solveBtn.dataset.solved = makeSolved ? '1' : '0';
+          solveBtn.classList.toggle('btn-success', makeSolved);
+          solveBtn.classList.toggle('btn-outline-success', !makeSolved);
+          solveBtn.innerHTML = makeSolved
+            ? '<i class="bi bi-check-circle-fill"></i> Solved'
+            : '<i class="bi bi-circle"></i> Mark as solved';
+        } else {
+          alert('Could not save: ' + r.error);
+        }
+      } catch (e) {
+        alert('Network error. Please try again.');
+      } finally {
+        solveBtn.disabled = false;
       }
     });
   }

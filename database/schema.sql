@@ -243,4 +243,42 @@ CREATE TABLE IF NOT EXISTS user_achievements (
     CONSTRAINT fk_ua_achievement FOREIGN KEY (achievement_id) REFERENCES achievements (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ---------------------------------------------------------------------------
+-- Practice problem "solved" tracking (questions solved by a user)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS user_problem_solved (
+    user_id    INT UNSIGNED NOT NULL,
+    problem_id INT UNSIGNED NOT NULL,
+    solved_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, problem_id),
+    KEY idx_ups_problem (problem_id),
+    CONSTRAINT fk_ups_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_ups_problem FOREIGN KEY (problem_id) REFERENCES practice_problems (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- Group Study
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS study_groups (
+    id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name       VARCHAR(120) NOT NULL,
+    join_code  VARCHAR(12) NOT NULL,
+    created_by INT UNSIGNED NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_group_code (join_code),
+    CONSTRAINT fk_group_creator FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- One group per user is enforced by the user_id PRIMARY KEY.
+CREATE TABLE IF NOT EXISTS group_members (
+    user_id   INT UNSIGNED NOT NULL,
+    group_id  INT UNSIGNED NOT NULL,
+    joined_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id),
+    KEY idx_gm_group (group_id),
+    CONSTRAINT fk_gm_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_gm_group FOREIGN KEY (group_id) REFERENCES study_groups (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;

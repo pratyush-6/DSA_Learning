@@ -36,6 +36,19 @@ with reveal-solutions, quizzes, and per-user progress tracking.
 | **Progress** | Mark complete (AJAX ✓), chapter/level/overall %, dashboard, streaks, achievements |
 | **Engagement** | Notes (auto-save), bookmarks, search |
 | **Admin** | CRUD authoring tool for chapters, topics, code, interview Qs, problems, quizzes |
+| **Group Study** | Create/join a group via a unique code (one group per user), leave to switch |
+| **Comparison dashboard** | Chart.js graphs comparing members: modules completed, questions solved, completion history with dates, and cumulative progress trends |
+
+## Running the tests
+
+A comprehensive suite covers Group Study, Module Completion, and Analytics:
+
+```
+php tests/run_tests.php
+```
+
+It creates isolated, prefixed test users/groups and cleans them up afterward,
+printing PASS/FAIL per scenario and exiting non-zero on any failure.
 
 ## Configuration
 

@@ -26,6 +26,14 @@ $langOrder  = array_keys(LANGUAGES);
 $prefLang   = is_logged_in() ? current_language() : 'php';
 $activeLang = !empty($solByLang[$prefLang]) ? $prefLang : (array_key_first($solByLang) ?: null);
 
+// Has the current user marked this problem as solved?
+$isSolved = false;
+if (is_logged_in()) {
+    $s = db()->prepare('SELECT 1 FROM user_problem_solved WHERE user_id = ? AND problem_id = ?');
+    $s->execute([current_user_id(), (int) $problem['id']]);
+    $isSolved = (bool) $s->fetchColumn();
+}
+
 $pageTitle = $problem['title'];
 require __DIR__ . '/partials/header.php';
 ?>
@@ -37,9 +45,15 @@ require __DIR__ . '/partials/header.php';
   </ol>
 </nav>
 
-<div class="d-flex align-items-center gap-2 mb-3">
+<div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
   <h2 class="mb-0"><?= e($problem['title']) ?></h2>
   <span class="badge bg-light difficulty-<?= e($problem['difficulty']) ?> border text-uppercase"><?= e($problem['difficulty']) ?></span>
+  <?php if (is_logged_in()): ?>
+    <button id="solve-btn" class="btn btn-sm <?= $isSolved ? 'btn-success' : 'btn-outline-success' ?> ms-auto"
+            data-problem-id="<?= (int) $problem['id'] ?>" data-solved="<?= $isSolved ? '1' : '0' ?>">
+      <i class="bi bi-<?= $isSolved ? 'check-circle-fill' : 'circle' ?>"></i> <?= $isSolved ? 'Solved' : 'Mark as solved' ?>
+    </button>
+  <?php endif; ?>
 </div>
 
 <div class="lesson-content">

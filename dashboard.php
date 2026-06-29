@@ -41,7 +41,8 @@ $recent = db()->prepare(
 $recent->execute([$uid]);
 $recentTopics = $recent->fetchAll();
 
-$quizCount = (int) db()->query("SELECT COUNT(*) FROM user_quiz_attempts WHERE user_id = {$uid}")->fetchColumn();
+$quizCount   = (int) db()->query("SELECT COUNT(*) FROM user_quiz_attempts WHERE user_id = {$uid}")->fetchColumn();
+$solvedCount = (int) db()->query("SELECT COUNT(*) FROM user_problem_solved WHERE user_id = {$uid}")->fetchColumn();
 
 $pageTitle = 'Dashboard';
 require __DIR__ . '/partials/header.php';
@@ -56,12 +57,13 @@ require __DIR__ . '/partials/header.php';
     <div class="display-6 fw-bold"><i class="bi bi-fire streak-flame"></i> <?= $streak ?></div><div class="text-muted">Day streak</div>
   </div></div></div>
   <div class="col-6 col-md-3"><div class="card border-0 shadow-sm text-center py-3"><div class="card-body">
-    <div class="display-6 fw-bold"><?= $overall['done'] ?></div><div class="text-muted">Topics completed</div>
+    <div class="display-6 fw-bold"><?= $overall['done'] ?></div><div class="text-muted">Modules completed</div>
   </div></div></div>
   <div class="col-6 col-md-3"><div class="card border-0 shadow-sm text-center py-3"><div class="card-body">
-    <div class="display-6 fw-bold"><?= $quizCount ?></div><div class="text-muted">Quizzes taken</div>
+    <div class="display-6 fw-bold"><?= $solvedCount ?></div><div class="text-muted">Questions solved</div>
   </div></div></div>
 </div>
+<div class="text-end mb-4"><span class="text-muted small">Quizzes taken: <strong><?= $quizCount ?></strong></span></div>
 
 <?php if ($nextTopic): ?>
 <div class="card border-0 shadow-sm mb-4 bg-info-subtle"><div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">

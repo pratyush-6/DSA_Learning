@@ -16,6 +16,7 @@ $navUser = current_user();
         <li class="nav-item"><a class="nav-link" href="<?= url('practice.php') ?>"><i class="bi bi-code-square"></i> Practice</a></li>
         <li class="nav-item"><a class="nav-link" href="<?= url('companies.php') ?>"><i class="bi bi-building"></i> Companies</a></li>
         <?php if ($navUser): ?>
+          <li class="nav-item"><a class="nav-link" href="<?= url('groups.php') ?>"><i class="bi bi-people"></i> Group</a></li>
           <li class="nav-item"><a class="nav-link" href="<?= url('bookmarks.php') ?>"><i class="bi bi-bookmark-star"></i> Bookmarks</a></li>
         <?php endif; ?>
       </ul>
