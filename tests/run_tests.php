@@ -11,6 +11,7 @@ declare(strict_types=1);
 error_reporting(E_ALL & ~E_DEPRECATED);
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/groups.php';
 
@@ -236,6 +237,21 @@ try {
     $ok = count($s1) === 1 && $s2 === [] && $s3['dates'] === [] && $s3['series'] === [];
 } catch (Throwable $e) { $ok = false; }
 check('Empty/new group produces no errors and empty analytics', $ok);
+
+// ===========================================================================
+section('REGRESSION: sidebar must not clobber caller variables');
+// ===========================================================================
+// partials/sidebar.php is require'd into the page scope. It must NOT overwrite
+// the caller's $tid / $isDone / $cid (the mark-complete button relies on them);
+// otherwise clicking "complete" marks the wrong topic (the last one rendered).
+$tid = 123456; $isDone = true; $cid = 654321;
+$currentChapterId = 1; $currentTopicId = 1;
+ob_start();
+require __DIR__ . '/../partials/sidebar.php';
+ob_get_clean();
+check('sidebar leaves caller $tid intact', $tid === 123456);
+check('sidebar leaves caller $isDone intact', $isDone === true);
+check('sidebar leaves caller $cid intact', $cid === 654321);
 
 // ---------------------------------------------------------------------------
 // Cleanup.
