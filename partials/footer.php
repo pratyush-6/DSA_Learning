@@ -1,12 +1,19 @@
   </div><!-- /.container-xl -->
 </main>
 
-<footer class="border-top py-4 mt-5 bg-light">
-  <div class="container-xl text-center text-muted small">
-    <p class="mb-1"><strong><?= e(APP_NAME) ?></strong> &mdash; Learn DSA from beginner to advanced.</p>
-    <p class="mb-0">Multi-language &middot; Real-world examples &middot; Interview prep &middot; Progress tracking</p>
+<footer class="app-footer py-4 mt-5">
+  <div class="container-xl">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 small">
+      <div>
+        <span class="fw-bold">DSA<span class="brand-mark">Learn</span></span>
+        <span class="text-muted ms-2">Learn DSA from beginner to advanced.</span>
+      </div>
+      <div class="text-muted">Multi-language · Real-world examples · Interview prep · Group study</div>
+    </div>
   </div>
 </footer>
+
+<div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="true"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>

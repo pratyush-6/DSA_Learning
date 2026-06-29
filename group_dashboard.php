@@ -120,6 +120,9 @@ require __DIR__ . '/partials/header.php';
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 (function () {
+  const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+  Chart.defaults.color = isDark ? '#93a0ba' : '#64748b';
+  Chart.defaults.borderColor = isDark ? '#263149' : '#e6e8ef';
   const labels = <?= json_encode($labels) ?>;
   const modules = <?= json_encode($modulesData) ?>;
   const questions = <?= json_encode($questionsData) ?>;

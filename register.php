@@ -44,9 +44,13 @@ require __DIR__ . '/partials/header.php';
 ?>
 <div class="row justify-content-center">
   <div class="col-md-6 col-lg-5">
-    <div class="card shadow-sm">
-      <div class="card-body p-4">
-        <h3 class="mb-3">Create your account</h3>
+    <div class="card lift mt-4">
+      <div class="card-body p-4 p-md-5">
+        <div class="text-center mb-4">
+          <span class="d-inline-grid bg-grad mb-2" style="width:48px;height:48px;border-radius:14px;place-items:center;color:#fff;font-size:1.4rem"><i class="bi bi-diagram-3-fill"></i></span>
+          <h3 class="mb-1">Create your account</h3>
+          <p class="text-muted small mb-0">Start learning DSA in your language.</p>
+        </div>
         <?php if ($errors): ?>
           <div class="alert alert-danger"><ul class="mb-0"><?php foreach ($errors as $er): ?><li><?= e($er) ?></li><?php endforeach; ?></ul></div>
         <?php endif; ?>
