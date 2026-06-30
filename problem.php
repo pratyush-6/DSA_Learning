@@ -183,8 +183,18 @@ require __DIR__ . '/partials/header.php';
     <?php endforeach; ?>
   </div>
 </div>
-<?php else: ?>
-  <div class="alert alert-secondary mt-4">Solution coming soon.</div>
+<?php elseif (!$hasCompiler): ?>
+  <div class="card mt-4"><div class="card-body">
+    <h5 class="mb-2"><i class="bi bi-box-arrow-up-right"></i> Practice this problem</h5>
+    <p class="text-muted mb-3">This is a problem from the Coder Army sheet. Open the full statement on a judge, solve it, then mark it as solved here.</p>
+    <a class="btn btn-outline-primary btn-sm" target="_blank" rel="noopener"
+       href="https://www.google.com/search?q=<?= urlencode($problem['title'] . ' geeksforgeeks') ?>"><i class="bi bi-search"></i> Find on GeeksforGeeks</a>
+    <a class="btn btn-outline-primary btn-sm" target="_blank" rel="noopener"
+       href="https://leetcode.com/problemset/?search=<?= urlencode($problem['title']) ?>"><i class="bi bi-search"></i> Find on LeetCode</a>
+    <?php if (is_admin()): ?>
+      <a class="btn btn-link btn-sm" href="<?= url('admin/problems.php?chapter_id=' . (int) $problem['chapter_id']) ?>">Add a solution (admin)</a>
+    <?php endif; ?>
+  </div></div>
 <?php endif; ?>
 
 <?php if ($hasCompiler && is_logged_in()): ?>

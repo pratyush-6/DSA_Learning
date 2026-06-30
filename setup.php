@@ -70,6 +70,12 @@ try {
         step($line);
     }
 
+    // 6. Enable the compiler on selected sheet problems (statement + tests).
+    require __DIR__ . '/database/seed/import_compiler_problems.php';
+    foreach (import_compiler_problems() as $line) {
+        step($line);
+    }
+
     step('Setup complete.');
 } catch (Throwable $ex) {
     step('Error: ' . $ex->getMessage(), false);
