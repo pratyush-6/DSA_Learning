@@ -257,6 +257,43 @@ CREATE TABLE IF NOT EXISTS user_problem_solved (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------------
+-- Built-in compiler: per-problem test cases & starter code
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS problem_testcases (
+    id              INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    problem_id      INT UNSIGNED NOT NULL,
+    stdin           MEDIUMTEXT NULL,
+    expected_output MEDIUMTEXT NOT NULL,
+    is_sample       TINYINT(1) NOT NULL DEFAULT 0,
+    sort_order      INT NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    KEY idx_tc_problem (problem_id, sort_order),
+    CONSTRAINT fk_tc_problem FOREIGN KEY (problem_id) REFERENCES practice_problems (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS problem_starters (
+    problem_id INT UNSIGNED NOT NULL,
+    language   ENUM('php','cpp','java','python') NOT NULL,
+    code       MEDIUMTEXT NOT NULL,
+    PRIMARY KEY (problem_id, language),
+    CONSTRAINT fk_starter_problem FOREIGN KEY (problem_id) REFERENCES practice_problems (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Track best code submissions (latest per user/problem/language).
+CREATE TABLE IF NOT EXISTS user_submissions (
+    user_id    INT UNSIGNED NOT NULL,
+    problem_id INT UNSIGNED NOT NULL,
+    language   ENUM('php','cpp','java','python') NOT NULL,
+    code       MEDIUMTEXT NOT NULL,
+    passed     INT NOT NULL DEFAULT 0,
+    total      INT NOT NULL DEFAULT 0,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, problem_id, language),
+    CONSTRAINT fk_sub_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_sub_problem FOREIGN KEY (problem_id) REFERENCES practice_problems (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
 -- Group Study
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS study_groups (

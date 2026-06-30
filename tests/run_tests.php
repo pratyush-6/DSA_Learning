@@ -14,6 +14,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/groups.php';
+require_once __DIR__ . '/../includes/runner.php';
 
 $pdo = db();
 
@@ -237,6 +238,39 @@ try {
     $ok = count($s1) === 1 && $s2 === [] && $s3['dates'] === [] && $s3['series'] === [];
 } catch (Throwable $e) { $ok = false; }
 check('Empty/new group produces no errors and empty analytics', $ok);
+
+// ===========================================================================
+section('BUILT-IN COMPILER');
+// ===========================================================================
+check('Output normalization trims trailing whitespace/newlines', normalize_output("5 \n\n") === '5');
+check('CRLF normalized to match expected', normalize_output("350\r\n") === normalize_output("350"));
+
+$r = run_code('php', "<?php echo 2 + 3;", '');
+check('PHP executes locally', $r['ok'] && trim($r['stdout']) === '5' && $r['backend'] === 'local');
+
+$r = run_code('python', "print(2 + 3)", '');
+check('Python executes locally', $r['ok'] && trim($r['stdout']) === '5');
+
+$r = run_code('php', "<?php \$n = (int) trim(fgets(STDIN)); echo \$n * 2;", '21');
+check('STDIN is passed to the program', trim($r['stdout']) === '42');
+
+$r = run_code('python', "import sys\nsys.stderr.write('boom')\nraise SystemExit(1)", '');
+check('Runtime error reported (not ok)', $r['ok'] === false);
+
+// End-to-end grading against a real seeded exercise.
+$pid = (int) $pdo->query("SELECT id FROM practice_problems WHERE slug='ex-sum-two-numbers'")->fetchColumn();
+$cases = $pdo->query("SELECT stdin, expected_output FROM problem_testcases WHERE problem_id={$pid} ORDER BY sort_order")->fetchAll();
+check('Exercise has predefined test cases', count($cases) >= 3);
+
+$good = "a,b=map(int,input().split())\nprint(a+b)";
+$bad  = "a,b=map(int,input().split())\nprint(a-b)";
+$goodPass = 0; $badPass = 0;
+foreach ($cases as $c) {
+    if (normalize_output(run_code('python', $good, $c['stdin'])['stdout']) === normalize_output($c['expected_output'])) $goodPass++;
+    if (normalize_output(run_code('python', $bad,  $c['stdin'])['stdout']) === normalize_output($c['expected_output'])) $badPass++;
+}
+check('Correct solution passes ALL test cases (→ completes)', $goodPass === count($cases));
+check('Wrong solution fails some test cases (→ NOT completed)', $badPass < count($cases));
 
 // ===========================================================================
 section('REGRESSION: sidebar must not clobber caller variables');

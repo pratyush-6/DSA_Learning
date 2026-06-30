@@ -34,6 +34,27 @@ if (is_logged_in()) {
     $isSolved = (bool) $s->fetchColumn();
 }
 
+// Built-in compiler: test cases + starter code.
+$tcStmt = db()->prepare('SELECT * FROM problem_testcases WHERE problem_id = ? ORDER BY sort_order, id');
+$tcStmt->execute([(int) $problem['id']]);
+$testcases  = $tcStmt->fetchAll();
+$hasCompiler = count($testcases) > 0;
+$samples    = array_values(array_filter($testcases, fn($t) => (int) $t['is_sample'] === 1));
+
+$starters = [];
+if ($hasCompiler) {
+    $st = db()->prepare('SELECT language, code FROM problem_starters WHERE problem_id = ?');
+    $st->execute([(int) $problem['id']]);
+    foreach ($st->fetchAll() as $r) { $starters[$r['language']] = $r['code']; }
+    // Prefill with the user's last submission per language if present.
+    if (is_logged_in()) {
+        $su = db()->prepare('SELECT language, code FROM user_submissions WHERE user_id = ? AND problem_id = ?');
+        $su->execute([current_user_id(), (int) $problem['id']]);
+        foreach ($su->fetchAll() as $r) { $starters[$r['language']] = $r['code']; }
+    }
+}
+$editorLang = $hasCompiler ? (isset($starters[$prefLang]) ? $prefLang : array_key_first($starters)) : $prefLang;
+
 $pageTitle = $problem['title'];
 require __DIR__ . '/partials/header.php';
 ?>
@@ -48,7 +69,12 @@ require __DIR__ . '/partials/header.php';
 <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
   <h2 class="mb-0"><?= e($problem['title']) ?></h2>
   <span class="badge bg-light difficulty-<?= e($problem['difficulty']) ?> border text-uppercase"><?= e($problem['difficulty']) ?></span>
-  <?php if (is_logged_in()): ?>
+  <?php if (is_logged_in() && $hasCompiler): ?>
+    <span id="solved-badge" class="badge ms-auto <?= $isSolved ? 'bg-success' : 'bg-secondary' ?>">
+      <i class="bi bi-<?= $isSolved ? 'check-circle-fill' : 'hourglass-split' ?>"></i>
+      <?= $isSolved ? 'Completed' : 'Pass all tests to complete' ?>
+    </span>
+  <?php elseif (is_logged_in()): ?>
     <button id="solve-btn" class="btn btn-sm <?= $isSolved ? 'btn-success' : 'btn-outline-success' ?> ms-auto"
             data-problem-id="<?= (int) $problem['id'] ?>" data-solved="<?= $isSolved ? '1' : '0' ?>">
       <i class="bi bi-<?= $isSolved ? 'check-circle-fill' : 'circle' ?>"></i> <?= $isSolved ? 'Solved' : 'Mark as solved' ?>
@@ -67,6 +93,64 @@ require __DIR__ . '/partials/header.php';
     <?= render_markdown($problem['constraints_md']) ?>
   <?php endif; ?>
 </div>
+
+<?php if ($hasCompiler): ?>
+  <?php if (!is_logged_in()): ?>
+    <div class="alert alert-info mt-4"><a href="<?= url('login.php') ?>">Log in</a> to write, run, and test your code in the built-in compiler.</div>
+  <?php else: ?>
+  <div class="card mt-4" id="compiler"><div class="card-body">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+      <h5 class="mb-0"><i class="bi bi-terminal"></i> Code Editor</h5>
+      <div class="nav nav-tabs border-0" id="lang-tabs" role="tablist">
+        <?php foreach ($langOrder as $lang): if (!isset($starters[$lang])) continue; ?>
+          <button class="nav-link <?= $lang === $editorLang ? 'active' : '' ?>" type="button" data-lang="<?= $lang ?>"><?= e(lang_label($lang)) ?></button>
+        <?php endforeach; ?>
+      </div>
+    </div>
+
+    <textarea id="code-editor"><?= e($starters[$editorLang] ?? '') ?></textarea>
+
+    <div class="row g-3 mt-1">
+      <div class="col-md-5">
+        <label class="form-label small mb-1">Custom input (stdin)</label>
+        <textarea id="custom-stdin" class="form-control font-monospace" rows="3"><?= e($samples[0]['stdin'] ?? '') ?></textarea>
+      </div>
+      <div class="col-md-7">
+        <label class="form-label small mb-1">Output</label>
+        <pre id="run-output" class="surface-2 p-2 rounded mb-0" style="min-height:86px;white-space:pre-wrap"></pre>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-3 align-items-center">
+      <button id="run-btn" class="btn btn-outline-primary"><i class="bi bi-play-fill"></i> Run</button>
+      <button id="submit-btn" class="btn btn-primary"><i class="bi bi-cloud-check"></i> Submit</button>
+      <button id="reset-btn" class="btn btn-link ms-auto" type="button">Reset code</button>
+    </div>
+
+    <div id="submit-results" class="mt-3"></div>
+  </div></div>
+
+  <div class="card mt-3"><div class="card-body">
+    <h6 class="mb-3">Sample test cases</h6>
+    <?php foreach ($samples as $tc): ?>
+      <div class="row g-2 mb-2">
+        <div class="col-md-6"><div class="small text-muted mb-1">Input</div><pre class="surface-2 p-2 rounded mb-0"><?= e($tc['stdin']) ?></pre></div>
+        <div class="col-md-6"><div class="small text-muted mb-1">Expected output</div><pre class="surface-2 p-2 rounded mb-0"><?= e($tc['expected_output']) ?></pre></div>
+      </div>
+    <?php endforeach; ?>
+    <div class="small text-muted mt-2"><i class="bi bi-lock"></i> Additional hidden test cases run on submit. The exercise is marked complete only when <strong>all</strong> tests pass.</div>
+  </div></div>
+
+  <script>
+    window.__compiler = {
+      problemId: <?= (int) $problem['id'] ?>,
+      starters: <?= json_encode($starters) ?>,
+      activeLang: <?= json_encode($editorLang) ?>,
+      solved: <?= $isSolved ? 'true' : 'false' ?>
+    };
+  </script>
+  <?php endif; ?>
+<?php endif; ?>
 
 <?php if ($solByLang): ?>
 <div class="mt-4">
@@ -101,5 +185,14 @@ require __DIR__ . '/partials/header.php';
 </div>
 <?php else: ?>
   <div class="alert alert-secondary mt-4">Solution coming soon.</div>
+<?php endif; ?>
+
+<?php if ($hasCompiler && is_logged_in()): ?>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="<?= asset('js/compiler.js') ?>"></script>
 <?php endif; ?>
 <?php require __DIR__ . '/partials/footer.php'; ?>

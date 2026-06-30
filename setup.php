@@ -49,6 +49,12 @@ try {
         step($line);
     }
 
+    // 5. Seed built-in compiler coding exercises (test cases + starters).
+    require __DIR__ . '/database/seed/import_exercises.php';
+    foreach (import_exercises() as $line) {
+        step($line);
+    }
+
     step('Setup complete.');
 } catch (Throwable $ex) {
     step('Error: ' . $ex->getMessage(), false);

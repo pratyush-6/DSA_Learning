@@ -36,8 +36,31 @@ with reveal-solutions, quizzes, and per-user progress tracking.
 | **Progress** | Mark complete (AJAX ✓), chapter/level/overall %, dashboard, streaks, achievements |
 | **Engagement** | Notes (auto-save), bookmarks, search |
 | **Admin** | CRUD authoring tool for chapters, topics, code, interview Qs, problems, quizzes |
+| **Built-in compiler** | Write/run/test code in PHP, C++, Java, Python on coding-exercise pages; submit against predefined test cases — completed only when all pass |
 | **Group Study** | Create/join a group via a unique code (one group per user), leave to switch |
 | **Comparison dashboard** | Chart.js graphs comparing members: modules completed, questions solved, completion history with dates, and cumulative progress trends |
+
+## Built-in code compiler
+
+Coding exercises (the **Coding Exercises** chapter) include an in-browser editor
+(CodeMirror) where users write a program, **Run** it against custom input, and
+**Submit** it against predefined test cases. An exercise is marked **completed
+only when every test case passes**.
+
+Execution backends (see `config/config.php`):
+- **PHP & Python** run **locally** on the server (offline, private) using the
+  configured interpreters (`PHP_CLI`, `PYTHON_BIN`).
+- **C++ & Java** run locally if `g++` / `javac` are installed; otherwise they are
+  sent to the **Piston** public API (`EXEC_ENABLE_REMOTE`, needs internet). Code
+  for those two languages leaves the machine only when run/submitted.
+
+Each run is time-limited (`EXEC_TIME_LIMIT_MS`) and output-capped; on Windows the
+process tree is force-killed on timeout.
+
+> **Security:** this feature executes user-submitted code on the server and is
+> intended for a **local, single-user** install. Do **not** expose it on the
+> public internet without proper sandboxing (containers, resource limits). To
+> disable remote execution entirely, set `EXEC_ENABLE_REMOTE` to `false`.
 
 ## Running the tests
 
