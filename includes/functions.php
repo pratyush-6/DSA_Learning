@@ -154,34 +154,25 @@ function record_activity(int $userId): void
     $stmt->execute([$userId]);
 }
 
-/** Current consecutive-day streak ending today or yesterday. */
-function current_streak(int $userId): int
+/** Compute a consecutive-day streak from activity dates (newest-first). */
+function streak_from_dates(array $datesDesc): int
 {
-    $stmt = db()->prepare(
-        'SELECT activity_date FROM user_activity WHERE user_id = ? ORDER BY activity_date DESC'
-    );
-    $stmt->execute([$userId]);
-    $dates = $stmt->fetchAll(PDO::FETCH_COLUMN);
-    if (!$dates) {
+    if (!$datesDesc) {
         return 0;
     }
-
     $today     = new DateTimeImmutable('today');
     $yesterday = $today->modify('-1 day');
-    $first     = new DateTimeImmutable($dates[0]);
+    $first     = new DateTimeImmutable($datesDesc[0]);
 
-    // Streak only counts if the latest activity is today or yesterday.
     if ($first->format('Y-m-d') !== $today->format('Y-m-d')
         && $first->format('Y-m-d') !== $yesterday->format('Y-m-d')) {
         return 0;
     }
-
     $streak   = 1;
     $previous = $first;
-    for ($i = 1; $i < count($dates); $i++) {
-        $current  = new DateTimeImmutable($dates[$i]);
-        $expected = $previous->modify('-1 day');
-        if ($current->format('Y-m-d') === $expected->format('Y-m-d')) {
+    for ($i = 1; $i < count($datesDesc); $i++) {
+        $current  = new DateTimeImmutable($datesDesc[$i]);
+        if ($current->format('Y-m-d') === $previous->modify('-1 day')->format('Y-m-d')) {
             $streak++;
             $previous = $current;
         } else {
@@ -189,6 +180,44 @@ function current_streak(int $userId): int
         }
     }
     return $streak;
+}
+
+/** Current consecutive-day streak ending today or yesterday. */
+function current_streak(int $userId): int
+{
+    $stmt = db()->prepare(
+        'SELECT activity_date FROM user_activity WHERE user_id = ? ORDER BY activity_date DESC'
+    );
+    $stmt->execute([$userId]);
+    return streak_from_dates($stmt->fetchAll(PDO::FETCH_COLUMN));
+}
+
+/**
+ * Current streak for many users in a single query (avoids N+1 on leaderboards).
+ *
+ * @param int[] $userIds
+ * @return array<int,int> userId => streak
+ */
+function streaks_for(array $userIds): array
+{
+    $userIds = array_values(array_unique(array_map('intval', $userIds)));
+    if (!$userIds) {
+        return [];
+    }
+    $in = implode(',', $userIds);
+    $rows = db()->query(
+        "SELECT user_id, activity_date FROM user_activity WHERE user_id IN ($in) ORDER BY user_id, activity_date DESC"
+    )->fetchAll();
+
+    $byUser = [];
+    foreach ($rows as $r) {
+        $byUser[(int) $r['user_id']][] = $r['activity_date'];
+    }
+    $out = [];
+    foreach ($userIds as $uid) {
+        $out[$uid] = streak_from_dates($byUser[$uid] ?? []);
+    }
+    return $out;
 }
 
 /** Longest streak ever achieved by the user. */

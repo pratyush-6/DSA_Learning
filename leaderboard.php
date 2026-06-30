@@ -25,11 +25,13 @@ function leaderboard_rows(?int $groupId = null, int $limit = 25): array
     $stmt = db()->prepare($sql);
     $stmt->execute($params);
     $rows = $stmt->fetchAll();
+    // Compute every displayed user's streak in ONE query (no N+1).
+    $streaks = streaks_for(array_map(fn($r) => (int) $r['id'], $rows));
     $rank = 0;
     foreach ($rows as &$r) {
-        $r['rank']  = ++$rank;
-        $r['score'] = (int) $r['modules'] + (int) $r['questions'];
-        $r['streak'] = current_streak((int) $r['id']);
+        $r['rank']   = ++$rank;
+        $r['score']  = (int) $r['modules'] + (int) $r['questions'];
+        $r['streak'] = $streaks[(int) $r['id']] ?? 0;
     }
     return $rows;
 }

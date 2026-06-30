@@ -73,10 +73,20 @@ php tests/run_tests.php
 It creates isolated, prefixed test users/groups and cleans them up afterward,
 printing PASS/FAIL per scenario and exiting non-zero on any failure.
 
+The same suite runs automatically on every push/PR via **GitHub Actions**
+(`.github/workflows/ci.yml`, spins up MySQL, runs `setup.php` then the tests).
+
 ## Configuration
 
-Edit `config/config.php` (app + DB credentials) and `config/database.php` (connection).
-Defaults assume XAMPP MySQL at `127.0.0.1:3306`, user `root`, no password.
+Defaults assume XAMPP MySQL at `127.0.0.1:3306`, user `root`, no password, and
+the app served at `/learn_dsa`.
+
+For machine-specific settings or **production secrets**, copy
+`config/config.local.example.php` → `config/config.local.php` (git-ignored) and
+override any constant (DB credentials, `BASE_URL`, `APP_DEBUG`,
+`EXEC_ENABLE_REMOTE`). Values there win over the defaults in `config/config.php`.
+
+Login attempts and code run/submit calls are rate-limited per IP/user.
 
 If the app is served from a different path, update `BASE_URL` in `config/config.php`.
 

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/ratelimit.php';
 
 if (is_logged_in()) {
     redirect('dashboard.php');
@@ -13,17 +14,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email    = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    $stmt = db()->prepare('SELECT * FROM users WHERE email = ?');
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
+    // Throttle brute-force attempts: 10 tries / 5 minutes per IP.
+    $rl = rate_limit('login:' . client_ip(), 10, 300);
+    if (!$rl['allowed']) {
+        $error = 'Too many login attempts. Please try again in ' . $rl['retry_after'] . ' seconds.';
+    } else {
+        $stmt = db()->prepare('SELECT * FROM users WHERE email = ?');
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
 
-    if ($user && password_verify($password, $user['password_hash'])) {
-        login_user((int) $user['id']);
-        $dest = $_SESSION['redirect_after_login'] ?? null;
-        unset($_SESSION['redirect_after_login']);
-        redirect($dest ?: url('dashboard.php'));
+        if ($user && password_verify($password, $user['password_hash'])) {
+            login_user((int) $user['id']);
+            $dest = $_SESSION['redirect_after_login'] ?? null;
+            unset($_SESSION['redirect_after_login']);
+            redirect($dest ?: url('dashboard.php'));
+        }
+        $error = 'Invalid email or password.';
     }
-    $error = 'Invalid email or password.';
 }
 
 $pageTitle = 'Login';

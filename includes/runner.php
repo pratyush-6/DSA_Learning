@@ -22,6 +22,38 @@ function normalize_output(string $s): string
     return rtrim(implode("\n", $lines), "\n");
 }
 
+/** Resolve a usable PHP CLI binary (XAMPP path → PHP_BINARY when on CLI → "php"). */
+function php_cli_bin(): ?string
+{
+    static $bin = false;
+    if ($bin !== false) {
+        return $bin;
+    }
+    if (PHP_CLI && @is_file(PHP_CLI)) {
+        return $bin = PHP_CLI;
+    }
+    if (PHP_SAPI === 'cli' && defined('PHP_BINARY') && PHP_BINARY && @is_file(PHP_BINARY)) {
+        return $bin = PHP_BINARY;
+    }
+    return $bin = (tool_available('php', '--version') ? 'php' : null);
+}
+
+/** Resolve a usable Python binary (PYTHON_BIN → python3). */
+function python_bin(): ?string
+{
+    static $bin = false;
+    if ($bin !== false) {
+        return $bin;
+    }
+    if (tool_available(PYTHON_BIN, '--version')) {
+        return $bin = PYTHON_BIN;
+    }
+    if (tool_available('python3', '--version')) {
+        return $bin = 'python3';
+    }
+    return $bin = null;
+}
+
 /** Is an external tool runnable? Cached per request. */
 function tool_available(string $bin, string $versionFlag = '--version'): bool
 {
@@ -132,18 +164,18 @@ function run_code(string $lang, string $source, string $stdin = ''): array
         => ['ok' => $ok, 'stdout' => $out, 'stderr' => $err, 'compile_error' => $ce, 'timed_out' => $to, 'backend' => $be];
 
     // ---- Local interpreters -------------------------------------------------
-    if ($lang === 'php' && is_file(PHP_CLI)) {
+    if ($lang === 'php' && php_cli_bin()) {
         $dir = exec_tmpdir();
         file_put_contents("$dir/main.php", $source);
-        $r = exec_process([PHP_CLI, '-d', 'display_errors=stderr', "$dir/main.php"], $stdin, $limit, $dir);
+        $r = exec_process([php_cli_bin(), '-d', 'display_errors=stderr', "$dir/main.php"], $stdin, $limit, $dir);
         rrmdir($dir);
         return $result(!$r['timed_out'] && $r['exit'] === 0, $r['stdout'], $r['stderr'], '', $r['timed_out']);
     }
 
-    if ($lang === 'python' && tool_available(PYTHON_BIN, '--version')) {
+    if ($lang === 'python' && python_bin()) {
         $dir = exec_tmpdir();
         file_put_contents("$dir/main.py", $source);
-        $r = exec_process([PYTHON_BIN, "$dir/main.py"], $stdin, $limit, $dir);
+        $r = exec_process([python_bin(), "$dir/main.py"], $stdin, $limit, $dir);
         rrmdir($dir);
         return $result(!$r['timed_out'] && $r['exit'] === 0, $r['stdout'], $r['stderr'], '', $r['timed_out']);
     }

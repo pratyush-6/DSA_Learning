@@ -12,3 +12,6 @@ Thumbs.db
 # PHP
 vendor/
 composer.lock
+
+# Local secrets / machine config
+config/config.local.php

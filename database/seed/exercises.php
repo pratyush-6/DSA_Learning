@@ -99,4 +99,138 @@ return [
             ['stdin' => "15", 'expected' => "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz"],
         ],
     ],
+
+    [
+        'title' => 'Even or Odd', 'slug' => 'ex-even-odd', 'difficulty' => 'easy',
+        'statement_md' => "Read an integer `n`. Print `Even` if it is even, otherwise `Odd`.",
+        'examples_md' => "```\nInput:  4\nOutput: Even\n```",
+        'constraints_md' => "- −10^9 ≤ n ≤ 10^9",
+        'starters' => [
+            'php' => "<?php\n\$n = (int) trim(fgets(STDIN));\n\n// TODO: print \"Even\" or \"Odd\"\n",
+            'python' => "n = int(input())\n\n# TODO: print 'Even' or 'Odd'\n",
+            'cpp' => "#include <bits/stdc++.h>\nusing namespace std;\nint main(){ long long n; cin>>n; /* TODO */ return 0; }\n",
+            'java' => "import java.util.*;\npublic class Main{ public static void main(String[] a){ long n=new Scanner(System.in).nextLong(); /* TODO */ } }\n",
+        ],
+        'tests' => [
+            ['stdin' => "4", 'expected' => "Even", 'sample' => true],
+            ['stdin' => "7", 'expected' => "Odd",  'sample' => true],
+            ['stdin' => "0", 'expected' => "Even"],
+            ['stdin' => "-3", 'expected' => "Odd"],
+        ],
+    ],
+
+    [
+        'title' => 'Count Vowels', 'slug' => 'ex-count-vowels', 'difficulty' => 'easy',
+        'statement_md' => "Read a line of text and print the number of vowels (a, e, i, o, u — case-insensitive).",
+        'examples_md' => "```\nInput:  hello\nOutput: 2\n```",
+        'constraints_md' => "- Line length 1–1000.",
+        'starters' => [
+            'php' => "<?php\n\$s = rtrim(fgets(STDIN), \"\\r\\n\");\n\n// TODO: print the number of vowels in \$s\n",
+            'python' => "s = input()\n\n# TODO: print the number of vowels in s\n",
+            'cpp' => "#include <bits/stdc++.h>\nusing namespace std;\nint main(){ string s; getline(cin,s); /* TODO */ return 0; }\n",
+            'java' => "import java.util.*;\npublic class Main{ public static void main(String[] a){ String s=new Scanner(System.in).nextLine(); /* TODO */ } }\n",
+        ],
+        'tests' => [
+            ['stdin' => "hello",       'expected' => "2", 'sample' => true],
+            ['stdin' => "AEIOU",       'expected' => "5", 'sample' => true],
+            ['stdin' => "xyz",         'expected' => "0"],
+            ['stdin' => "Programming", 'expected' => "3"],
+        ],
+    ],
+
+    [
+        'title' => 'GCD of Two Numbers', 'slug' => 'ex-gcd', 'difficulty' => 'easy',
+        'statement_md' => "Read two positive integers `a` and `b` and print their greatest common divisor (GCD).",
+        'examples_md' => "```\nInput:  12 18\nOutput: 6\n```",
+        'constraints_md' => "- 1 ≤ a, b ≤ 10^9",
+        'starters' => [
+            'php' => "<?php\n[\$a, \$b] = array_map('intval', explode(' ', trim(fgets(STDIN))));\n\n// TODO: print gcd(\$a, \$b)\n",
+            'python' => "a, b = map(int, input().split())\n\n# TODO: print gcd(a, b)\n",
+            'cpp' => "#include <bits/stdc++.h>\nusing namespace std;\nint main(){ long long a,b; cin>>a>>b; /* TODO */ return 0; }\n",
+            'java' => "import java.util.*;\npublic class Main{ public static void main(String[] x){ Scanner s=new Scanner(System.in); long a=s.nextLong(),b=s.nextLong(); /* TODO */ } }\n",
+        ],
+        'tests' => [
+            ['stdin' => "12 18", 'expected' => "6",  'sample' => true],
+            ['stdin' => "7 13",  'expected' => "1",  'sample' => true],
+            ['stdin' => "100 10", 'expected' => "10"],
+            ['stdin' => "1000000000 8", 'expected' => "8"],
+        ],
+    ],
+
+    [
+        'title' => 'Nth Fibonacci Number', 'slug' => 'ex-nth-fibonacci', 'difficulty' => 'easy',
+        'statement_md' => "Read `n` and print the n-th Fibonacci number, where `fib(0) = 0`, `fib(1) = 1`.",
+        'examples_md' => "```\nInput:  10\nOutput: 55\n```",
+        'constraints_md' => "- 0 ≤ n ≤ 90",
+        'starters' => [
+            'php' => "<?php\n\$n = (int) trim(fgets(STDIN));\n\n// TODO: print the n-th Fibonacci number\n",
+            'python' => "n = int(input())\n\n# TODO: print the n-th Fibonacci number\n",
+            'cpp' => "#include <bits/stdc++.h>\nusing namespace std;\nint main(){ long long n; cin>>n; /* TODO (use long long) */ return 0; }\n",
+            'java' => "import java.util.*;\npublic class Main{ public static void main(String[] a){ long n=new Scanner(System.in).nextLong(); /* TODO (use long) */ } }\n",
+        ],
+        'tests' => [
+            ['stdin' => "10", 'expected' => "55", 'sample' => true],
+            ['stdin' => "0",  'expected' => "0",  'sample' => true],
+            ['stdin' => "1",  'expected' => "1"],
+            ['stdin' => "20", 'expected' => "6765"],
+        ],
+    ],
+
+    [
+        'title' => 'Sum of Digits', 'slug' => 'ex-sum-of-digits', 'difficulty' => 'easy',
+        'statement_md' => "Read a non-negative integer `n` and print the sum of its digits.",
+        'examples_md' => "```\nInput:  12345\nOutput: 15\n```",
+        'constraints_md' => "- 0 ≤ n ≤ 10^18",
+        'starters' => [
+            'php' => "<?php\n\$s = trim(fgets(STDIN));\n\n// TODO: print the sum of the digits of \$s\n",
+            'python' => "s = input().strip()\n\n# TODO: print the sum of the digits of s\n",
+            'cpp' => "#include <bits/stdc++.h>\nusing namespace std;\nint main(){ string s; cin>>s; /* TODO */ return 0; }\n",
+            'java' => "import java.util.*;\npublic class Main{ public static void main(String[] a){ String s=new Scanner(System.in).next(); /* TODO */ } }\n",
+        ],
+        'tests' => [
+            ['stdin' => "12345", 'expected' => "15", 'sample' => true],
+            ['stdin' => "0",     'expected' => "0",  'sample' => true],
+            ['stdin' => "999",   'expected' => "27"],
+            ['stdin' => "1000000000000000000", 'expected' => "1"],
+        ],
+    ],
+
+    [
+        'title' => 'Check Prime', 'slug' => 'ex-check-prime', 'difficulty' => 'easy',
+        'statement_md' => "Read an integer `n` and print `YES` if it is prime, otherwise `NO`.",
+        'examples_md' => "```\nInput:  7\nOutput: YES\n```",
+        'constraints_md' => "- 1 ≤ n ≤ 10^9",
+        'starters' => [
+            'php' => "<?php\n\$n = (int) trim(fgets(STDIN));\n\n// TODO: print \"YES\" if prime else \"NO\"\n",
+            'python' => "n = int(input())\n\n# TODO: print 'YES' if prime else 'NO'\n",
+            'cpp' => "#include <bits/stdc++.h>\nusing namespace std;\nint main(){ long long n; cin>>n; /* TODO */ return 0; }\n",
+            'java' => "import java.util.*;\npublic class Main{ public static void main(String[] a){ long n=new Scanner(System.in).nextLong(); /* TODO */ } }\n",
+        ],
+        'tests' => [
+            ['stdin' => "7",  'expected' => "YES", 'sample' => true],
+            ['stdin' => "1",  'expected' => "NO",  'sample' => true],
+            ['stdin' => "2",  'expected' => "YES"],
+            ['stdin' => "9",  'expected' => "NO"],
+            ['stdin' => "97", 'expected' => "YES"],
+        ],
+    ],
+
+    [
+        'title' => 'Second Largest Element', 'slug' => 'ex-second-largest', 'difficulty' => 'medium',
+        'statement_md' => "The first line contains `n`. The second line contains `n` integers. Print the **second largest distinct** value, or `-1` if it does not exist.",
+        'examples_md' => "```\nInput:\n5\n3 7 1 9 2\nOutput:\n7\n```",
+        'constraints_md' => "- 1 ≤ n ≤ 10^5",
+        'starters' => [
+            'php' => "<?php\n\$n = (int) trim(fgets(STDIN));\n\$a = array_map('intval', preg_split('/\\s+/', trim(fgets(STDIN))));\n\n// TODO: print the second largest distinct value, or -1\n",
+            'python' => "n = int(input())\na = list(map(int, input().split()))\n\n# TODO: print the second largest distinct value, or -1\n",
+            'cpp' => "#include <bits/stdc++.h>\nusing namespace std;\nint main(){ int n; cin>>n; vector<long long> a(n); for(auto&x:a)cin>>x; /* TODO */ return 0; }\n",
+            'java' => "import java.util.*;\npublic class Main{ public static void main(String[] x){ Scanner s=new Scanner(System.in); int n=s.nextInt(); long[] a=new long[n]; for(int i=0;i<n;i++)a[i]=s.nextLong(); /* TODO */ } }\n",
+        ],
+        'tests' => [
+            ['stdin' => "5\n3 7 1 9 2",  'expected' => "7",  'sample' => true],
+            ['stdin' => "4\n10 10 9 8",  'expected' => "9",  'sample' => true],
+            ['stdin' => "2\n5 3",        'expected' => "3"],
+            ['stdin' => "3\n4 4 4",      'expected' => "-1"],
+        ],
+    ],
 ];

@@ -188,6 +188,7 @@ CREATE TABLE IF NOT EXISTS user_progress (
     completed_at DATETIME NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uq_progress (user_id, topic_id),
+    KEY idx_progress_completed (completed_at),
     CONSTRAINT fk_progress_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_progress_topic FOREIGN KEY (topic_id) REFERENCES topics (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -252,6 +253,7 @@ CREATE TABLE IF NOT EXISTS user_problem_solved (
     solved_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, problem_id),
     KEY idx_ups_problem (problem_id),
+    KEY idx_ups_solved (solved_at),
     CONSTRAINT fk_ups_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_ups_problem FOREIGN KEY (problem_id) REFERENCES practice_problems (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

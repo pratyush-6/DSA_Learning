@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: learn_dsa
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql, mysqli
+
+      - name: Write local config
+        run: |
+          {
+            echo '<?php'
+            echo "define('DB_HOST','127.0.0.1');"
+            echo "define('DB_PORT','3306');"
+            echo "define('DB_NAME','learn_dsa');"
+            echo "define('DB_USER','root');"
+            echo "define('DB_PASS','root');"
+            echo "define('APP_DEBUG', false);"
+            echo "define('EXEC_ENABLE_REMOTE', false);"
+          } > config/config.local.php
+
+      - name: Wait for MySQL
+        run: |
+          for i in $(seq 1 30); do
+            mysqladmin ping -h 127.0.0.1 -proot --silent && break
+            echo "waiting for mysql..."; sleep 2
+          done
+
+      - name: Setup (schema + seed + import)
+        run: php setup.php
+
+      - name: Run test suite
+        run: php tests/run_tests.php

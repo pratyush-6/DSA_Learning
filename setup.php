@@ -36,6 +36,21 @@ try {
     db()->exec($sql);
     step('Schema applied (tables created).');
 
+    // 2b. Idempotent migrations (add indexes to pre-existing tables).
+    $ensureIndex = function (string $table, string $index, string $cols): void {
+        $stmt = db()->prepare(
+            'SELECT COUNT(*) FROM information_schema.statistics
+             WHERE table_schema = ? AND table_name = ? AND index_name = ?'
+        );
+        $stmt->execute([DB_NAME, $table, $index]);
+        if ((int) $stmt->fetchColumn() === 0) {
+            db()->exec("ALTER TABLE `{$table}` ADD INDEX `{$index}` ({$cols})");
+        }
+    };
+    $ensureIndex('user_progress', 'idx_progress_completed', 'completed_at');
+    $ensureIndex('user_problem_solved', 'idx_ups_solved', 'solved_at');
+    step('Migrations applied (indexes ensured).');
+
     // 3. Seed reference + curriculum content.
     require __DIR__ . '/database/seed/seed.php';
     $seedResult = run_seed();

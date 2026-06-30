@@ -2,6 +2,7 @@
 /** Run user code once against optional custom stdin; return program output. */
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/runner.php';
+require_once __DIR__ . '/../includes/ratelimit.php';
 
 if (!is_logged_in()) {
     json_response(['ok' => false, 'error' => 'auth'], 401);
@@ -9,6 +10,12 @@ if (!is_logged_in()) {
 $input = json_decode(file_get_contents('php://input'), true) ?: [];
 if (!csrf_check($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null)) {
     json_response(['ok' => false, 'error' => 'csrf'], 419);
+}
+
+// Throttle code execution: 30 runs / minute per user.
+$rl = rate_limit('run:' . current_user_id(), 30, 60);
+if (!$rl['allowed']) {
+    json_response(['ok' => false, 'error' => 'rate_limited', 'retry_after' => $rl['retry_after']], 429);
 }
 
 $lang   = (string) ($input['language'] ?? '');
